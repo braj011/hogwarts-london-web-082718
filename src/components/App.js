@@ -10,10 +10,19 @@ class App extends Component {
   constructor() {
     super() 
     this.state = {
-      pigs : hogs,
+      pigs : pigs,
       filter: '',
-      sorted: false
+      sorted: false,
+      hiddenPigs: [] 
+      // array of hidden pigs initally empty
     }
+  }
+
+  hidePig = (pig) => {
+    this.setState({
+      hiddenPigs: [...this.state.hiddenPigs, pig]
+      // create an array to store hidden pigs
+    })
   }
 
   updateFilter = newFilter => {
@@ -48,16 +57,18 @@ class App extends Component {
   }
 
   render() {
-    const { updateFilter, filterPigs, sortPigs, updateSortPigsStatus } = this
+    const { updateFilter, filterPigs, sortPigs, updateSortPigsStatus, hidePig } = this
     const { pigs } = this.state
-    let lePigs = this.state.sorted ? sortPigs(this.state.pigs) : pigs     // saves pigs as lePigs when sorted or not sorted
-    let leFilteredPigs = this.state.sorted ? sortPigs(filterPigs()) : filterPigs()  // similar to aboved, but for when pigs have been filtered
+    let pigs  = this.state.pigs.filter(pig => !this.state.hiddenPigs.includes(pig))
+    let sortedPigs = this.state.sorted ? sortPigs(this.state.pigs) : pigs     // saves pigs as lePigs when sorted or not sorted
+ 
+    let sortedFilteredPigs = this.state.sorted ? sortPigs(filterPigs()) : filterPigs()  // similar to aboved, but for when pigs have been filtered
     return (
       <div className="App">
           < Nav />
           {<input className="filter-pig-input" onKeyUp={event => updateFilter(event.target.value)} placeholder='Filter the pigs out of it!!'></input>}
           <button className="sort-button" onClick={updateSortPigsStatus}> {this.state.sorted ? "Unsort pigs" : "Sort pigs"} </button>
-          {< PigsContainer pigs={lePigs} filteredPigs={leFilteredPigs} />}
+          {< PigsContainer pigs={sortedPigs} filteredPigs={sortedFilteredPigs} hidePig={hidePig} />}
 
       </div>
     )
